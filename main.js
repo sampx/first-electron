@@ -1,6 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
+const { autoUpdater } = require('electron-updater')
 const os = require('os')
 const path = require('path')
+
+// 自动更新检查
+autoUpdater.checkForUpdatesAndNotify()
 
 app.whenReady().then(() => {
   const win = new BrowserWindow({
