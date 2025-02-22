@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    getPlatform: () => ipcRenderer.invoke('get-platform')
+    getSystemInfo: () => ipcRenderer.invoke('system:info'),
+    handleFileDrop: (path) => ipcRenderer.send('file:dropped', path)
 })

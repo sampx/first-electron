@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
+const os = require('os')
 const path = require('path')
 
 app.whenReady().then(() => {
@@ -19,4 +20,12 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-ipcMain.handle('get-platform', () => process.platform)
+ipcMain.handle('system:info', () => ({
+    platform: process.platform,
+    cpu: os.loadavg()[0].toFixed(1),
+    mem: process.memoryUsage().rss
+}))
+
+ipcMain.on('file:dropped', (event, path) => {
+    console.log('File dropped:', path)
+})
