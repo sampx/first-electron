@@ -10,31 +10,68 @@ const FileInfo = require('./FileInfo')  // 导入文件信息类
 let fileList = []
 
 /**
- * 处理接收到的文件信息
- * @param {Object} fileInfo - 包含文件信息的对象
- * @param {string} fileInfo.name - 文件名
- * @param {string} fileInfo.path - 文件路径
- * @param {string} fileInfo.content - 文件内容
- * @returns {Object|null} 处理后的文件信息对象，失败则返回null
+ * 记录文件内容信息
+ * @param {Object} file - 文件对象
  */
-async function handleFile(fileInfo) {
-    // 验证文件信息的有效性
+function logFileContent(file) {
+    if (file.content) {
+        if (typeof file.content === 'string') {
+            console.log(`文件内容: ${file.content.substring(0, 100)}...`) // 只打印前100个字符
+        } else {
+            console.log('文件内容为二进制数据，长度:', file.content.length)
+        }
+    } else {
+        console.log('文件内容为空')
+    }
+}
+
+/**
+ * 验证文件信息的有效性
+ * @param {Object} fileInfo - 文件信息对象
+ * @returns {boolean} 是否有效
+ */
+function validateFileInfo(fileInfo) {
     if (!fileInfo || !fileInfo.name) {
         console.error('文件信息无效')
-        return null
+        return false
     }
+    return true
+}
+
+/**
+ * 处理拖放的文件
+ * @param {Object} fileInfo - 拖放文件的信息
+ * @returns {Object|null} 处理后的文件信息对象
+ */
+async function handleDroppedFile(fileInfo) {
+    if (!validateFileInfo(fileInfo)) return null
 
     try {
-        // 创建 FileInfo 实例
         const processedFile = FileInfo.create(fileInfo)
-        
-        // 记录文件处理日志
-        console.log(`接收到文件: ${processedFile.name}`)
-        console.log(`文件内容: ${processedFile.content.substring(0, 100)}...`) // 只打印前100个字符
-        
+        console.log(`接收到拖放文件: ${processedFile.name}`)
+        logFileContent(processedFile)
         return processedFile
     } catch (error) {
-        console.error(`处理文件 ${fileInfo.name} 时出错:`, error)
+        console.error(`处理拖放文件 ${fileInfo.name} 时出错:`, error)
+        return null
+    }
+}
+
+/**
+ * 处理通过对话框选择的文件
+ * @param {Object} fileInfo - 选择的文件信息
+ * @returns {Object|null} 处理后的文件信息对象
+ */
+async function handleSelectedFile(fileInfo) {
+    if (!validateFileInfo(fileInfo)) return null
+
+    try {
+        const processedFile = FileInfo.create(fileInfo)
+        console.log(`接收到选择文件: ${processedFile.name}`)
+        logFileContent(processedFile)
+        return processedFile
+    } catch (error) {
+        console.error(`处理选择文件 ${fileInfo.name} 时出错:`, error)
         return null
     }
 }
@@ -69,8 +106,7 @@ app.on('window-all-closed', () => {
 ipcMain.handle('system:info', () => ({
     platform: process.platform,           // 操作系统平台
     cpu: os.loadavg()[0].toFixed(1),     // CPU负载（1分钟平均值）
-    mem: process.memoryUsage().rss,      // 内存使用量（RSS）
-    freemem: os.freemem()               // 添加空闲内存信息
+    mem: process.memoryUsage().rss       // 内存使用量（RSS）
 }))
 
 // 处理打开文件对话框的IPC请求
@@ -85,7 +121,7 @@ ipcMain.handle('dialog:openFile', async () => {
 // 处理文件拖放的IPC事件
 ipcMain.on('file:dropped', async (event, fileInfo) => {
     // 处理拖放的文件
-    const processedFile = await handleFile(fileInfo)
+    const processedFile = await handleDroppedFile(fileInfo)
     if (processedFile) {
         fileList.push(processedFile)
         console.log('当前文件列表:', fileList.map(f => f.name).join(', '))
