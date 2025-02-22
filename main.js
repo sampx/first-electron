@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { autoUpdater } = require('electron-updater')
 const os = require('os')
 const path = require('path')
@@ -29,6 +29,13 @@ ipcMain.handle('system:info', () => ({
     cpu: os.loadavg()[0].toFixed(1),
     mem: process.memoryUsage().rss
 }))
+
+ipcMain.handle('dialog:openFile', async () => {
+    const { filePaths } = await dialog.showOpenDialog({
+        properties: ['openFile']
+    })
+    return filePaths[0]
+})
 
 ipcMain.on('file:dropped', (event, path) => {
     console.log('File dropped:', path)

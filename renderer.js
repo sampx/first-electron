@@ -20,10 +20,27 @@ document.addEventListener('DOMContentLoaded', () => {
         dropZone.style.backgroundColor = '#f0f0f0'
     }
 
+    // 点击处理
+    dropZone.addEventListener('click', async () => {
+        const filePath = await window.electronAPI.openFileDialog()
+        if (!filePath) return
+        
+        handleFile({
+            path: filePath,
+            name: filePath.split('/').pop() // 使用浏览器API获取文件名
+        })
+    })
+
+    // 拖放处理
     dropZone.ondrop = (e) => {
         e.preventDefault()
         dropZone.style.backgroundColor = ''
         const file = e.dataTransfer.files[0]
+        handleFile(file)
+    }
+
+    // 通用文件处理函数
+    function handleFile(file) {
         
         // 生成唯一ID
         const fileId = Date.now() 
