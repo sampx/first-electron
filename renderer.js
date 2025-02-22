@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             // 获取stats容器并清空内容
             const statsContainer = infoElement.querySelector('.stats-container')
-            statsContainer.innerHTML = ''
+            statsContainer.innerHTML = ''  // 确保清空容器
             
             // 创建并添加统计项
             const createStatItem = (label, value) => {
@@ -76,10 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return div
             }
             
-            // 添加各个统计信息
-            statsContainer.appendChild(createStatItem('平台', data.platform))
-            statsContainer.appendChild(createStatItem('CPU使用率', `${data.cpu}%`))
-            statsContainer.appendChild(createStatItem('内存使用', `${Math.round(data.mem / 1024 / 1024)} MB`))
+            // 添加各个统计信息（增加空值检查）
+            if (data.platform) {
+                statsContainer.appendChild(createStatItem('平台', data.platform))
+            }
+            if (data.cpu) {
+                statsContainer.appendChild(createStatItem('CPU负载', `${data.cpu}%`))
+            }
+            if (data.mem) {
+                statsContainer.appendChild(createStatItem('内存使用', `${Math.round(data.mem / 1024 / 1024)} MB`))
+            }
+        })
+        .catch(error => {
+            console.error('获取系统信息失败:', error)
+            const statsContainer = infoElement.querySelector('.stats-container')
+            statsContainer.innerHTML = `<div class="error">无法获取系统信息</div>`
         })
 
     // 处理拖拽文件时的悬停效果
