@@ -61,12 +61,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // 通过IPC通信获取并显示系统信息
     window.electronAPI.getSystemInfo()
         .then(data => {
-            // 格式化并显示系统信息
-            infoElement.innerHTML = `
-                平台：${data.platform}<br>
-                CPU使用率：${data.cpu}%<br>
-                内存使用：${(data.mem / 1024 / 1024).toFixed(2)} MB
-            `
+            // 获取stats容器并清空内容
+            const statsContainer = infoElement.querySelector('.stats-container')
+            statsContainer.innerHTML = ''
+            
+            // 创建并添加统计项
+            const createStatItem = (label, value) => {
+                const div = document.createElement('div')
+                div.className = 'stat-item'
+                div.innerHTML = `
+                    <span class="stat-label">${label}</span>
+                    <span class="stat-value">${value}</span>
+                `
+                return div
+            }
+            
+            // 添加各个统计信息
+            statsContainer.appendChild(createStatItem('平台', data.platform))
+            statsContainer.appendChild(createStatItem('CPU使用率', `${data.cpu}%`))
+            statsContainer.appendChild(createStatItem('内存使用', `${Math.round(data.mem / 1024 / 1024)} MB`))
         })
 
     // 处理拖拽文件时的悬停效果

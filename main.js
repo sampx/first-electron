@@ -69,7 +69,8 @@ app.on('window-all-closed', () => {
 ipcMain.handle('system:info', () => ({
     platform: process.platform,           // 操作系统平台
     cpu: os.loadavg()[0].toFixed(1),     // CPU负载（1分钟平均值）
-    mem: process.memoryUsage().rss       // 内存使用量（RSS）
+    mem: process.memoryUsage().rss,      // 内存使用量（RSS）
+    freemem: os.freemem()               // 添加空闲内存信息
 }))
 
 // 处理打开文件对话框的IPC请求
