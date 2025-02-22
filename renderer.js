@@ -40,8 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
         `
         
         // 添加删除事件
-        fileItem.querySelector('.delete-btn').addEventListener('click', () => {
-            fileList = fileList.filter(f => f.id !== Number(fileItem.dataset.id))
+        fileItem.querySelector('.delete-btn').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const targetId = Number(fileItem.dataset.id)
+            fileList = fileList.filter(f => {
+                if(f.id === targetId) {
+                    if(f.previewUrl) URL.revokeObjectURL(f.previewUrl)
+                    return false
+                }
+                return true
+            })
             fileItem.remove()
         })
         
