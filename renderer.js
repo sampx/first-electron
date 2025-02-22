@@ -34,12 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
         fileItem.className = 'file-item'
         fileItem.dataset.id = fileId
         
-        // 添加Base64文件图标
-        const fileIcon = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODg2OTMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTMgMnY2aDZNMTMgMkg5YTIgMiAwIDAgMC0yIDJ2MTZhMiAyIDAgMCAwIDIgMmg2YTIgMiAwIDAgMCAyLTJWN0wxMyAyeiIvPgo8L3N2Zz4=" class="file-preview">`
-        
         fileItem.innerHTML = `
-            ${fileIcon}
-            <div style="font-size: 12px; word-break: break-all">${file.name}</div>
+            <div class="file-name-container">
+                <span class="file-name">${file.name}</span>
+            </div>
             <button class="delete-btn">×</button>
         `
         
