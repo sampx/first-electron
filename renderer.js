@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const infoElement = document.getElementById('system-info')
     const dropZone = document.getElementById('drop-zone')
+    let fileList = []
 
     // 获取系统信息
     window.electronAPI.getSystemInfo()
@@ -22,9 +23,31 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.ondrop = (e) => {
         e.preventDefault()
         dropZone.style.backgroundColor = ''
-        const files = e.dataTransfer.files
-        if (files.length > 0) {
-            window.electronAPI.handleFileDrop(files[0].path)
-        }
+        const file = e.dataTransfer.files[0]
+        
+        // 生成唯一ID
+        const fileId = Date.now() 
+        fileList.push({ id: fileId, path: file.path, name: file.name })
+        
+        // 创建文件项
+        const fileItem = document.createElement('div')
+        fileItem.className = 'file-item'
+        fileItem.dataset.id = fileId
+        fileItem.innerHTML = `
+            <div style="font-size: 40px;">📄</div>
+            <div style="font-size: 12px; word-break: break-all">${file.name}</div>
+            <div class="delete-btn">×</div>
+        `
+        
+        // 添加删除事件
+        fileItem.querySelector('.delete-btn').addEventListener('click', () => {
+            fileList = fileList.filter(f => f.id !== Number(fileItem.dataset.id))
+            fileItem.remove()
+        })
+        
+        document.getElementById('file-list').appendChild(fileItem)
+        
+        // 发送文件路径到主进程
+        window.electronAPI.handleFileDrop(file.path)
     }
 })

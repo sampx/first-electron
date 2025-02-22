@@ -13,6 +13,35 @@
          style="width: 300px; height: 100px; border: 2px dashed #666; padding: 20px; margin: 20px;">
         拖放文件到这里
     </div>
+    <div id="file-list" style="display: flex; gap: 15px; flex-wrap: wrap; margin: 20px;"></div>
+    <style>
+    .file-item {
+        position: relative;
+        width: 80px;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        display: none;
+        cursor: pointer;
+        background: red;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+    }
+
+    .file-item:hover .delete-btn {
+        display: block;
+    }
+    </style>
     <script src="renderer.js"></script>
 </body>
 </html>
