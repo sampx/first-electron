@@ -93,12 +93,12 @@ app.whenReady().then(() => {
     webPreferences: {
       nodeIntegration: false,     // 禁用Node.js集成，提高安全性
       contextIsolation: true,     // 启用上下文隔离
-      preload: path.join(__dirname, 'preload.js')  // 指定预加载脚本
+      preload: path.join(__dirname, '../preload/preload.js')  // 指定预加载脚本
     }
   })
 
   // 加载应用的HTML文件
-  win.loadFile('index.html')
+  win.loadFile(path.join(__dirname, '../renderer/index.html'))
 })
 
 // 处理窗口关闭事件
