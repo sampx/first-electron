@@ -1,37 +1,46 @@
 {
-  "name": "my-electron-app",
-  "version": "1.0.0",
+  "name": "first-electron",
+  "version": "0.0.1",
   "description": "A simple Electron application",
   "author": "Sam",
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sampx/first-electron-app.git"
+    "url": "https://github.com/sampx/first-electron.git"
   },
   "scripts": {
     "start": "electron --disable-http-cache .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "clean": "rm -rf release"
   },
   "build": {
-    "appId": "com.example.myapp",
+    "appId": "io.github.sampx.firstelectron",
     "files": [
-      "**/*",
-      "!node_modules"
+      "!{.vscode,.yarn,.github}",
+      "!aider.*",
+      "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}",
+      "!{.env,.env.*,.npmrc,pnpm-lock.yaml}",
+      "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
+    ],
+    "asarUnpack": [
+      "**/*.{node,dll,metal,exp,lib}"
     ],
     "directories": {
       "output": "release"
     },
     "publish": {
-      "provider": "github"
+      "provider": "github",
+      "releaseType": "draft"
     }
   },
   "dependencies": {
+    "electron-log": "^5.3.0",
+    "electron-updater": "^6.3.9",
     "mime-types": "^2.1.35"
   },
   "devDependencies": {
     "electron": "^34.2.0",
-    "electron-builder": "^24.9.1",
-    "electron-updater": "^6.0.1"
+    "electron-builder": "^24.13.3"
   }
 }

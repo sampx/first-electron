@@ -1,6 +1,7 @@
 // 导入所需的Electron模块和Node.js内置模块
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { autoUpdater } = require('electron-updater') // 用于应用程序自动更新
+const log = require('electron-log')
 const os = require('os')      // 操作系统相关功能
 const path = require('path')  // 路径处理
 const fs = require('fs')      // 文件系统操作
@@ -19,12 +20,12 @@ let fileList = []
 function logFileContent(file) {
     if (file.content) {
         if (typeof file.content === 'string') {
-            console.log(`文件内容: ${file.content.substring(0, 100)}...`) // 只打印前100个字符
+            log.info(`文件内容: ${file.content.substring(0, 100)}...`) // 只打印前100个字符
         } else {
-            console.log('文件内容为二进制数据，长度:', file.content.length)
+            log.info('文件内容为二进制数据，长度:', file.content.length)
         }
     } else {
-        console.log('文件内容为空')
+        log.info('文件内容为空')
     }
 }
 
@@ -52,14 +53,19 @@ async function handleFile(fileInfo) {
     try {
         // 创建文件信息对象
         const processedFile = FileInfo.create(fileInfo)
-        console.log(`接收到文件: ${processedFile.name}`)
+        log.info(`接收到文件: ${processedFile.name}`)
         logFileContent(processedFile)
 
         // 确保files目录存在
-        const filesDir = path.join(__dirname, 'files')
-        if (!fs.existsSync(filesDir)) {
-            fs.mkdirSync(filesDir)
+        let filesDir = path.join(__dirname, 'files')
+        if (app.isPackaged){ // 使用 app.getPath('userData') 获取正确的数据存储路径
+            filesDir = path.join(app.getPath('userData'), 'files')
         }
+        if (!fs.existsSync(filesDir)) {
+            fs.mkdirSync(filesDir, { recursive: true })
+        }        
+        log.info('文件存储目录:', filesDir)
+
         // 将文件保存到files目录
         const targetPath = path.join(filesDir, processedFile.name)
         await fs.promises.writeFile(targetPath, processedFile.content)
@@ -123,9 +129,9 @@ ipcMain.on('file:selected', async (event, fileInfo) => {
     const processedFile = await handleFile(fileInfo)
     if (processedFile) {
         fileList.push(processedFile)
-        console.log('当前文件列表:\n');
+        log.info('当前文件列表:\n');
         fileList.forEach(file => {
-            console.log('文件信息:', {
+            log.info('文件信息:', {
                 名称: file.name,
                 ID: file.fileId,
                 类型: file.mimeType,
@@ -157,19 +163,19 @@ ipcMain.on('file:removed', async (event, fileInfo) => {
         if (fs.existsSync(fileToDelete.server_path)) {
             // 删除文件
             await fs.promises.unlink(fileToDelete.server_path)
-            console.log(`文件已从磁盘删除: ${fileToDelete.server_path}`)
+            log.info(`文件已从磁盘删除: ${fileToDelete.server_path}`)
         }
     }
     // 从文件列表中移除指定文件
     fileList = fileList.filter(f => f.fileId !== fileInfo.fileId)
-    console.log('=== 文件删除信息 ===')
-    console.log(`已删除文件: ${fileInfo.name} (ID: ${fileInfo.fileId})`)
+    log.info('=== 文件删除信息 ===')
+    log.info(`已删除文件: ${fileInfo.name} (ID: ${fileInfo.fileId})`)
     if (fileList.length === 0) {
-        console.log('当前无文件')
+        log.info('当前无文件')
     } else {
-        console.log('当前文件列表:\n');
+        log.info('当前文件列表:\n');
         fileList.forEach(file => {
-            console.log('文件信息:', {
+            log.info('文件信息:', {
                 名称: file.name,
                 ID: file.fileId,
                 类型: file.mimeType,
@@ -178,5 +184,5 @@ ipcMain.on('file:removed', async (event, fileInfo) => {
             });
         });
     }
-    console.log('==================')
+    log.info('==================')
 })
