@@ -1,19 +1,21 @@
-/**
- * 文件信息类，用于管理文件的相关属性
- */
+
 class FileInfo {
     /**
      * @param {Object} params - 文件信息参数
      * @param {string} params.fileId - 文件唯一标识符
      * @param {string} params.name - 文件名
-     * @param {string} params.path - 文件路径
+     * @param {string} params.client_path - 文件原始路径
+     * @param {string} params.server_path - 文件服务器路径
      * @param {string} params.content - 文件内容
+     * @param {string} params.mimeType - 文件mime类型
      */
-    constructor({ fileId, name, path, content }) {
+    constructor({ fileId, name, client_path, server_path, content, mimeType }) {
         this.fileId = fileId
         this.name = name
-        this.path = path
+        this.client_path = client_path
+        this.server_path = server_path
         this.content = content
+        this.mimeType = mimeType
     }
 
     /**
@@ -23,10 +25,10 @@ class FileInfo {
      */
     static create(fileData) {
         return new FileInfo({
-            fileId: fileData.fileId || fileData.id, // 兼容现有的 id 字段
+            fileId: fileData.fileId,
             name: fileData.name,
-            path: fileData.path,
-            content: fileData.content
+            client_path: fileData.path ? fileData.path : null,
+            content: fileData.content,
         })
     }
 
@@ -38,8 +40,11 @@ class FileInfo {
         return {
             fileId: this.fileId,
             name: this.name,
-            path: this.path,
-            content: this.content
+            client_path: this.client_path,
+            content: this.content,
+            client_path: this.client_path,
+            mimeType: this.mimeType,
+            server_path: this.server_path
         }
     }
 }

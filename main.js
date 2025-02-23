@@ -4,7 +4,10 @@ const { autoUpdater } = require('electron-updater') // 用于应用程序自动�
 const os = require('os')      // 操作系统相关功能
 const path = require('path')  // 路径处理
 const fs = require('fs')      // 文件系统操作
+const mime = require('mime-types') 
+
 const FileInfo = require('./FileInfo')  // 导入文件信息类
+
 
 // 用于在内存中存储已处理的文件列表
 let fileList = []
@@ -43,35 +46,31 @@ function validateFileInfo(fileInfo) {
  * @param {Object} fileInfo - 拖放文件的信息
  * @returns {Object|null} 处理后的文件信息对象
  */
-async function handleDroppedFile(fileInfo) {
+async function handleFile(fileInfo) {
     if (!validateFileInfo(fileInfo)) return null
 
     try {
+        // 创建文件信息对象
         const processedFile = FileInfo.create(fileInfo)
-        console.log(`接收到拖放文件: ${processedFile.name}`)
+        console.log(`接收到文件: ${processedFile.name}`)
         logFileContent(processedFile)
+
+        // 确保files目录存在
+        const filesDir = path.join(__dirname, 'files')
+        if (!fs.existsSync(filesDir)) {
+            fs.mkdirSync(filesDir)
+        }
+        // 将文件保存到files目录
+        const targetPath = path.join(filesDir, processedFile.name)
+        await fs.promises.writeFile(targetPath, processedFile.content)
+        
+        // 更新文件路径信息
+        processedFile.server_path = targetPath
+        processedFile.mimeType = mime.lookup(targetPath) || 'application/octet-stream'
+        
         return processedFile
     } catch (error) {
-        console.error(`处理拖放文件 ${fileInfo.name} 时出错:`, error)
-        return null
-    }
-}
-
-/**
- * 处理通过对话框选择的文件
- * @param {Object} fileInfo - 选择的文件信息
- * @returns {Object|null} 处理后的文件信息对象
- */
-async function handleSelectedFile(fileInfo) {
-    if (!validateFileInfo(fileInfo)) return null
-
-    try {
-        const processedFile = FileInfo.create(fileInfo)
-        console.log(`接收到选择文件: ${processedFile.name}`)
-        logFileContent(processedFile)
-        return processedFile
-    } catch (error) {
-        console.error(`处理选择文件 ${fileInfo.name} 时出错:`, error)
+        console.error(`处理文件 ${fileInfo.name} 时出错:`, error)
         return null
     }
 }
@@ -119,12 +118,21 @@ ipcMain.handle('dialog:openFile', async () => {
 })
 
 // 处理文件拖放的IPC事件
-ipcMain.on('file:dropped', async (event, fileInfo) => {
+ipcMain.on('file:selected', async (event, fileInfo) => {
     // 处理拖放的文件
-    const processedFile = await handleDroppedFile(fileInfo)
+    const processedFile = await handleFile(fileInfo)
     if (processedFile) {
         fileList.push(processedFile)
-        console.log('当前文件列表:', fileList.map(f => f.name).join(', '))
+        console.log('当前文件列表:\n');
+        fileList.forEach(file => {
+            console.log('文件信息:', {
+                名称: file.name,
+                ID: file.fileId,
+                类型: file.mimeType,
+                本地路径: file.client_path,
+                服务器路径: file.server_path
+            });
+        });
     }
 })
 
@@ -140,18 +148,35 @@ ipcMain.handle('file:read', async (event, filePath) => {
 })
 
 // 处理文件删除的IPC事件
-ipcMain.on('file:removed', (event, fileInfo) => {
+ipcMain.on('file:removed', async (event, fileInfo) => {
+    // 从文件列表中找到要删除的文件
+    const fileToDelete = fileList.find(f => f.fileId === fileInfo.fileId)
+        
+    if (fileToDelete && fileToDelete.server_path) {
+        // 检查文件是否存在
+        if (fs.existsSync(fileToDelete.server_path)) {
+            // 删除文件
+            await fs.promises.unlink(fileToDelete.server_path)
+            console.log(`文件已从磁盘删除: ${fileToDelete.server_path}`)
+        }
+    }
     // 从文件列表中移除指定文件
     fileList = fileList.filter(f => f.fileId !== fileInfo.fileId)
     console.log('=== 文件删除信息 ===')
     console.log(`已删除文件: ${fileInfo.name} (ID: ${fileInfo.fileId})`)
-    console.log('=== 当前文件列表 ===')
     if (fileList.length === 0) {
         console.log('当前无文件')
     } else {
+        console.log('当前文件列表:\n');
         fileList.forEach(file => {
-            console.log(`- ${file.name} (ID: ${file.fileId})`)
-        })
+            console.log('文件信息:', {
+                名称: file.name,
+                ID: file.fileId,
+                类型: file.mimeType,
+                本地路径: file.client_path,
+                服务器路径: file.server_path
+            });
+        });
     }
     console.log('==================')
 })

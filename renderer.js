@@ -22,11 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 创建文件信息对象
     function createFileInfo(fileName, filePath = null) {
-        const fileId = Date.now()
+        const timestamp = Date.now()
+        const fileId = `${fileName.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}`
         return {
             fileId,
             name: fileName,
             path: filePath,
+            type: null,
             content: null
         }
     }
@@ -58,13 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="file-name-container">
                 <span class="file-name">${fileInfo.name}</span>
                 ${fileInfo.path ? `<span class="file-path">${fileInfo.path}</span>` : ''}
+                ${fileInfo.type ? `<span class="file-type">${fileInfo.type}</span>` : ''}
             </div>
             <button class="delete-btn">×</button>
         `
 
         fileItem.querySelector('.delete-btn').addEventListener('click', (e) => {
             e.stopPropagation()
-            const targetId = Number(fileItem.dataset.id)
+            const targetId = fileItem.dataset.id
             const targetFile = fileList.find(f => f.id === targetId)
             if (targetFile) {
                 window.electronAPI.removeFile({
@@ -86,18 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const existingFileIndex = fileList.findIndex(f => f.name === fileInfo.name && f.path === fileInfo.path);
         if (existingFileIndex === -1) {
             document.getElementById('file-list').appendChild(fileItem)
-            fileList.push({ id: fileInfo.fileId, name: fileInfo.name, path: fileInfo.path })
+            fileList.push({ id: fileInfo.fileId, fileId: fileInfo.fileId, name: fileInfo.name, path: fileInfo.path })
         }
     }
 
     // 处理拖放文件
     async function handleDroppedFile(file) {
         try {
-            const fileInfo = createFileInfo(file.name)
-            
+            const fileInfo = createFileInfo(file.name)            
             const content = await readFileContent(file)
             fileInfo.content = content
-            window.electronAPI.handleFileDrop(fileInfo)
+            window.electronAPI.handleFileSelected(fileInfo)
             displayFileItem(fileInfo)
         } catch (error) {
             console.error('处理拖放文件失败:', error)
@@ -114,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = await window.electronAPI.readFile(filePath)
             if (content !== null) {
                 fileInfo.content = content
-                window.electronAPI.handleFileDrop(fileInfo)
+                window.electronAPI.handleFileSelected(fileInfo)
                 displayFileItem(fileInfo)
             } else {
                 throw new Error('无法读取文件内容')

@@ -1,13 +1,15 @@
 {
   "name": "my-electron-app",
   "version": "1.0.0",
+  "description": "A simple Electron application",
+  "author": "Sam",
   "main": "main.js",
-  "devDependencies": {
-    "electron-builder": "^24.9.1",
-    "electron-updater": "^6.0.1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sampx/first-electron-app.git"
   },
   "scripts": {
-    "start": "'/Users/sam/Library/Application Support/Electron Fiddle/electron-bin/current/Electron.app/Contents/MacOS/Electron' --disable-http-cache .",
+    "start": "electron --disable-http-cache .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
@@ -23,5 +25,13 @@
     "publish": {
       "provider": "github"
     }
+  },
+  "dependencies": {
+    "mime-types": "^2.1.35"
+  },
+  "devDependencies": {
+    "electron": "^34.2.0",
+    "electron-builder": "^24.9.1",
+    "electron-updater": "^6.0.1"
   }
 }
