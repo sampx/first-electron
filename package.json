@@ -1,6 +1,6 @@
 {
   "name": "first-electron",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A simple Electron application",
   "author": "Sam",
   "main": "main.js",
@@ -12,7 +12,7 @@
     "start": "electron --disable-http-cache .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "release": "electron-builder -p always --publish always",
+    "release": "electron-builder -p always",
     "clean": "rm -rf release"
   },
   "build": {
@@ -32,7 +32,8 @@
     },
     "publish": {
       "provider": "github",
-      "releaseType": "release"
+      "releaseType": "release",
+      "publishAutoUpdate": true
     }
   },
   "dependencies": {
