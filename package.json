@@ -3,13 +3,16 @@
   "version": "0.0.3",
   "description": "A simple Electron application",
   "author": "Sam",
-  "main": "src/main/main.js",
+  "main": "out/main/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/sampx/first-electron.git"
   },
   "scripts": {
-    "start": "electron --disable-http-cache .",
+    "run": "electron --disable-http-cache .",
+    "start": "electron-vite preview",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "release": "electron-builder -p always",
@@ -42,7 +45,15 @@
     "mime-types": "^2.1.35"
   },
   "devDependencies": {
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@types/electron": "^1.4.38",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.13.5",
     "electron": "^34.2.0",
-    "electron-builder": "^24.13.3"
-  }
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^3.0.0",
+    "typescript": "^5.6.2",
+    "vite": "^6.1.1"
+  },
+  "packageManager": "yarn@4.6.0"
 }
