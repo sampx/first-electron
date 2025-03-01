@@ -17,11 +17,6 @@ import { AppContext } from "./AppContext";
 
 const appContext = AppContext.getInstance();
 const dbManager = DatabaseManager.getInstance();
-try {
-  dbManager.initialize();
-} catch (error) {
-  log.error("数据库初始化失败:", error);
-}
 
 // 针对 macOS 平台做特殊处理
 if (process.platform === 'darwin') {
