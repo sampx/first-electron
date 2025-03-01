@@ -1,6 +1,13 @@
 .aider*
+.clinerules
 files/
 release/
 node_modules/
 .DS_Store
 .yarn/
+out/
+kb/
+*.db
+*.db-*
+*.log
+app_state.dev.json

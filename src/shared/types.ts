@@ -1,6 +1,12 @@
-/**
- * 系统信息接口
- */
+
+export interface AppStateType {
+    db_initialized?: boolean;
+    window_size?: {
+        width: number;
+        height: number;
+    };
+}
+
 export interface SystemInfo {
     platform: string;
     cpu: number;
@@ -10,13 +16,19 @@ export interface SystemInfo {
 /**
  * 文件信息参数接口
  */
-export interface FileInfoParams {
+export interface FileInfoType {
     fileId: string;
     name: string;
     client_path?: string | null;
     server_path?: string | null;
-    content?: string | Buffer | null;
+    content?: string | null;
     mimeType?: string | null;
+}
+
+export interface NotificationOptions {
+    title: string;
+    body: string;
+    type: 'error' | 'info' | 'warning' | 'success';
 }
 
 /**
@@ -25,9 +37,11 @@ export interface FileInfoParams {
 export interface ElectronAPI {
     getSystemInfo: () => Promise<SystemInfo>;
     openFileDialog: () => Promise<string[]>;
-    handleFileSelected: (fileInfo: FileInfoParams) => void;
+    handleFileSelected: (fileInfo: FileInfoType) => Promise<boolean>;
     readFile: (filePath: string) => Promise<string | null>;
-    removeFile: (fileInfo: { fileId: string; name: string }) => void;
+    removeFile: (fileInfo: { fileId: string; name: string }) => Promise<boolean>;
+    getFiles: () => Promise<FileInfoType[]>;
+    showNotification: (options: NotificationOptions) => Promise<void>;
 }
 
 /**

@@ -4,28 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" 
           content="default-src 'self'; script-src 'self'">
-    <title>Electron File Manager</title>
+    <title>First Electron</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="app-title">Electron File Manager</h1>
-        
-        <div class="system-info" id="system-info">
-            <div class="stats-container"></div>
-        </div>
-
-        <div class="drop-zone" id="drop-zone">
-            <div class="drop-content">
-                <svg class="drop-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
-                </svg>
-                <p class="drop-text">拖放文件到这里或点击选择</p>
-            </div>
-        </div>
-
-        <div class="file-list" id="file-list"></div>
-    </div>
-    <script src="./src/renderer.ts" type="module"></script>
+    <div id="app-root"></div>
+    <script src="./src/renderer.tsx" type="module"></script>
 </body>
 </html>
